@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Аялгуут Завсарлага - Багшийн Стресс Бууруулах Платформ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #f0f7ff 0%, #e6f0fa 50%, #f5f0ff 100%);
+            min-height: 100vh;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05);
+        }
+        .tab-active {
+            background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        }
+        .breathe-circle {
+            transition: all 4s ease-in-out;
+        }
+        .kalimba-tine {
+            transition: transform 0.1s ease, background-color 0.2s;
+            cursor: pointer;
+            user-select: none;
+        }
+        .kalimba-tine:active, .kalimba-active {
+            transform: scaleY(0.95) translateY(4px);
+            background: linear-gradient(to bottom, #4f46e5, #818cf8) !important;
+            color: white !important;
+        }
+        :root {
+            box-sizing: border-box;
+            padding-top: env(safe-area-inset-top, 0px);
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+        }
+        .sr-only { position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border-width:0; }
+        @media (max-width: 480px) {
+            .glass-card { border-radius: 1rem; }
+            header nav { gap: 0.375rem; }
+            main { padding-left: 0.75rem; padding-right: 0.75rem; }
+        }
+        input[type=radio].sr-only + div {
+            transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+            cursor: pointer;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body class="text-slate-800 pb-12">
+
+    <!-- Header -->
+    <header class="glass-card sticky top-0 z-50 border-b border-slate-200/60">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-3">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-lg shadow-indigo-200">
+                    <i class="fa-solid fa-music text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg text-slate-900 leading-tight">Аялгуут Завсарлага</h1>
+                    <p class="text-xs text-slate-500">Монгол ардын язгуур аялгуунд суурилсан багшийн стресс бууруулах платформ</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <button onclick="openShareModal()" class="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200/70 border border-slate-200 flex items-center justify-center text-slate-600 transition shadow-sm" title="QR Код хуваалцах">
+                    <i class="fa-solid fa-qrcode"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="max-w-7xl mx-auto px-4 py-2 overflow-x-auto">
+            <nav class="flex space-x-2 min-w-max">
+                <button onclick="switchTab('tab-mood')" id="btn-tab-mood" class="tab-btn tab-active px-4 py-2 rounded-xl text-xs font-semibold transition flex items-center gap-2">
+                    🎵 1. Сэтгэл зүй & Монгол Аялгуу
+                </button>
+                <button onclick="switchTab('tab-breathe')" id="btn-tab-breathe" class="tab-btn bg-white/70 hover:bg-white px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 transition flex items-center gap-2">
+                    🌬️ 2. Амьсгалын дасгал (4-4-4)
+                </button>
+                <button onclick="switchTab('tab-kalimba')" id="btn-tab-kalimba" class="tab-btn bg-white/70 hover:bg-white px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 transition flex items-center gap-2">
+                    🪕 3. Монгол Таван Эгшигт Ятга
+                </button>
+                <button onclick="switchTab('tab-ai')" id="btn-tab-ai" class="tab-btn bg-white/70 hover:bg-white px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 transition flex items-center gap-2">
+                    🤖 4. Ухаалаг Зөвлөх
+                </button>
+                <button onclick="switchTab('tab-survey')" id="btn-tab-survey" class="tab-btn bg-white/70 hover:bg-white px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 transition flex items-center gap-2">
+                    📋 5. Стресс Сорил өгөх
+                </button>
+                <button onclick="openAdminModal()" id="btn-tab-control" class="tab-btn bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-xl text-xs font-semibold transition flex items-center gap-2 shadow-sm">
+                    <i id="controlTabIcon" class="fa-solid fa-gear"></i> <span id="controlTabText">⚙️ Удирдлагын хэсэг</span>
+                    <span id="participantBadge" title="Судалгаа өгсөн тоо" class="bg-emerald-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                        <i class="fa-solid fa-users"></i> <strong id="headerCount">0</strong>
+                    </span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 mt-6">
+
+        <!-- TAB 1: MOOD & MONGOLIAN MUSIC -->
+        <section id="tab-mood" class="tab-content space-y-6">
+            <div class="glass-card rounded-2xl p-6">
+                <h2 class="text-lg font-bold text-slate-800 mb-1">Өнөөдрийн таны сэтгэл санаа болон ядаргааны түвшин ямар байна вэ?</h2>
+                <p class="text-xs text-slate-500 mb-4">Төлөвөө сонгоход таны сэтгэл зүйг тайвшруулах Монгол аялгууг санал болгож тоглуулна.</p>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <button onclick="selectMood(1, 'Төвлөрөх шаардлагатай', 'yatga')" class="mood-btn p-4 rounded-xl border border-slate-200 bg-white hover:border-indigo-500 hover:bg-indigo-50/40 transition text-center group">
+                        <div class="text-3xl mb-1 group-hover:scale-110 transition">😊</div>
+                        <div class="font-semibold text-xs text-slate-800">Тайван, бүтээлч</div>
+                        <div class="text-[11px] text-indigo-600 font-medium">1. Ятгын вариаци</div>
+                    </button>
+                    <button onclick="selectMood(2, 'Тархи ядарсан', 'tarhi')" class="mood-btn p-4 rounded-xl border border-slate-200 bg-white hover:border-indigo-500 hover:bg-indigo-50/40 transition text-center group">
+                        <div class="text-3xl mb-1 group-hover:scale-110 transition">😐</div>
+                        <div class="font-semibold text-xs text-slate-800">Тархи ядарсан</div>
+                        <div class="text-[11px] text-emerald-600 font-medium">2. Тархи амраах ая</div>
+                    </button>
+                    <button onclick="selectMood(3, 'Бухимдалтай, чимээнд ядарсан', 'taivshruulah')" class="mood-btn p-4 rounded-xl border border-slate-200 bg-white hover:border-indigo-500 hover:bg-indigo-50/40 transition text-center group">
+                        <div class="text-3xl mb-1 group-hover:scale-110 transition">😣</div>
+                        <div class="font-semibold text-xs text-slate-800">Ядарч бухимдсан</div>
+                        <div class="text-[11px] text-blue-600 font-medium">3. Тайвшруулах ая</div>
+                    </button>
+                    <button onclick="selectMood(4, 'Хэт стресстэй, гүн амралт хэрэгтэй', 'gegeen')" class="mood-btn p-4 rounded-xl border border-slate-200 bg-white hover:border-indigo-500 hover:bg-indigo-50/40 transition text-center group">
+                        <div class="text-3xl mb-1 group-hover:scale-110 transition">😫</div>
+                        <div class="font-semibold text-xs text-slate-800">Хэт ачаалалтай</div>
+                        <div class="text-[11px] text-purple-600 font-medium">4. Гэгээн алсад одох юмсан</div>
+                    </button>
+                </div>
+                <div id="moodRecommendation" class="hidden mt-4 p-3.5 rounded-xl bg-indigo-50 border border-indigo-200 text-xs text-indigo-900 flex items-center justify-between">
+                    <span id="moodRecText"></span>
+                    <button onclick="switchTab('tab-survey')" class="underline font-semibold ml-2">Стрессийн сорил өгөх &rarr;</button>
+                </div>
+            </div>
+
+            <!-- 4 MONGOLIAN MELODY ITEMS -->
+            <div class="glass-card rounded-2xl p-6">
+                <div class="flex flex-wrap justify-between items-center gap-4 mb-5">
+                    <div>
+                        <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-film text-indigo-600"></i> Монгол Аялгуу Цэс (Дүрст Аяз & Видео)
+                        </h3>
+                        <p class="text-xs text-slate-500">Аялгуу тус бүрийг асааж, хүссэн үедээ зогсоож сэтгэл зүйгээ тайвшруулаарай.</p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-3">
+                        <label class="text-xs text-slate-600 font-medium flex items-center gap-2">
+                            <i class="fa-solid fa-volume-high text-indigo-600"></i> Дууны хүч:
+                            <input type="range" id="volumeSlider" min="0" max="100" value="70" onchange="updateVolume(this.value)" class="accent-indigo-600 w-24">
+                        </label>
+                        <button onclick="stopAllAudio()" class="px-3.5 py-2 rounded-xl bg-rose-100 text-rose-700 hover:bg-rose-200 text-xs font-semibold transition">
+                            <i class="fa-solid fa-stop"></i> Бүгдийг зогсоох
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <!-- 1. Ятгын вариаци -->
+                    <div class="p-4 rounded-2xl border border-slate-200 bg-white flex flex-col justify-between shadow-sm hover:shadow-md transition">
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-700"><i class="fa-solid fa-music mr-1"></i> 1. Визуал Аяз</span>
+                                <span class="text-[11px] text-slate-500 font-semibold">Төвлөрөлт & Эрч хүч</span>
+                            </div>
+                            <h4 class="font-bold text-base text-slate-900">1. Ятгын вариаци</h4>
+                            <p class="text-xs text-slate-600 mt-1 mb-3 leading-relaxed">
+                                <strong>Тайлбар:</strong> Монгол ятга хөгжмийн тунгалаг, уран вариаци нь тархины бор гадаргын идэвхийг сэргээж, төвлөрөхөд тусална.
+                            </p>
+                            <div class="relative rounded-xl overflow-hidden bg-slate-900 aspect-video mb-3 border border-slate-200 flex items-center justify-center">
+                                <canvas id="canvas-yatga" class="w-full h-full object-cover"></canvas>
+                                <video id="video-yatga" class="w-full h-full object-cover hidden" controls playsinline></video>
+                                <div id="overlay-yatga" class="absolute inset-0 flex flex-col items-center justify-center bg-slate-900/40 text-white pointer-events-none">
+                                    <i class="fa-solid fa-circle-play text-4xl opacity-90 drop-shadow"></i>
+                                    <span class="text-xs font-semibold mt-1 drop-shadow">Ятгын вариаци</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="playMongolTrack('yatga')" class="flex-1 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold transition flex items-center justify-center gap-1.5 shadow-sm">
+                                <i class="fa-solid fa-play"></i> Эхлүүлэх
+                            </button>
+                            <button onclick="stopAllAudio()" class="px-4 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-semibold transition flex items-center gap-1.5">
+                                <i class="fa-solid fa-stop"></i> Зогсоох
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 2. Тархи амраах ая -->
+                    <div class="p-4 rounded-2xl border border-slate-200 bg-white flex flex-col justify-between shadow-sm hover:shadow-md transition">
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700"><i class="fa-solid fa-music mr-1"></i> 2. Визуал Аяз</span>
+                                <span class="text-[11px] text-slate-500 font-semibold">Альфа долгион & Амралт</span>
+                            </div>
+                            <h4 class="font-bold text-base text-slate-900">2. Тархи амраах ая</h4>
+                            <p class="text-xs text-slate-600 mt-1 mb-3 leading-relaxed">
+                                <strong>Тайлбар:</strong> Олон цагаар хичээл зааж оюуны хэт ачаалалд орсон үед тархины Бета долгионыг Альфа төлөвт шилжүүлж амраана.
+                            </p>
+                            <div class="relative rounded-xl overflow-hidden bg-slate-900 aspect-video mb-3 border border-slate-200 flex items-center justify-center">
+                                <canvas id="canvas-tarhi" class="w-full h-full object-cover"></canvas>
+                                <video id="video-tarhi" class="w-full h-full object-cover hidden" controls playsinline></video>
+                                <div id="overlay-tarhi" class="absolute inset-0 flex flex-col items-center justify-center bg-slate-900/40 text-white pointer-events-none">
+                                    <i class="fa-solid fa-circle-play text-4xl opacity-90 drop-shadow"></i>
+                                    <span class="text-xs font-semibold mt-1 drop-shadow">Тархи амраах ая</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="playMongolTrack('tarhi')" class="flex-1 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold transition flex items-center justify-center gap-1.5 shadow-sm">
+                                <i class="fa-solid fa-play"></i> Эхлүүлэх
+                            </button>
+                            <button onclick="stopAllAudio()" class="px-4 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-semibold transition flex items-center gap-1.5">
+                                <i class="fa-solid fa-stop"></i> Зогсоох
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 3. Тайвшруулах ая -->
+                    <div class="p-4 rounded-2xl border border-slate-200 bg-white flex flex-col justify-between shadow-sm hover:shadow-md transition">
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-blue-100 text-blue-700"><i class="fa-solid fa-music mr-1"></i> 3. Визуал Аяз</span>
+                                <span class="text-[11px] text-slate-500 font-semibold">Стресс & Бухимдал тайлах</span>
+                            </div>
+                            <h4 class="font-bold text-base text-slate-900">3. Тайвшруулах ая</h4>
+                            <p class="text-xs text-slate-600 mt-1 mb-3 leading-relaxed">
+                                <strong>Тайлбар:</strong> Сургуулийн орчны дуу чимээ болон харилцааны бухимдлаас үүдэлтэй зүрхний цохилтыг тогтворжуулах аялгуу.
+                            </p>
+                            <div class="relative rounded-xl overflow-hidden bg-slate-900 aspect-video mb-3 border border-slate-200 flex items-center justify-center">
+                                <canvas id="canvas-taivshruulah" class="w-full h-full object-cover"></canvas>
+                                <video id="video-taivshruulah" class="w-full h-full object-cover hidden" controls playsinline></video>
+                                <div id="overlay-taivshruulah" class="absolute inset-0 flex flex-col items-center justify-center bg-slate-900/40 text-white pointer-events-none">
+                                    <i class="fa-solid fa-circle-play text-4xl opacity-90 drop-shadow"></i>
+                                    <span class="text-xs font-semibold mt-1 drop-shadow">Тайвшруулах ая</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="playMongolTrack('taivshruulah')" class="flex-1 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold transition flex items-center justify-center gap-1.5 shadow-sm">
+                                <i class="fa-solid fa-play"></i> Эхлүүлэх
+                            </button>
+                            <button onclick="stopAllAudio()" class="px-4 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-semibold transition flex items-center gap-1.5">
+                                <i class="fa-solid fa-stop"></i> Зогсоох
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 4. Гэгээн алсад одох юмсан ая -->
+                    <div class="p-4 rounded-2xl border border-slate-200 bg-white flex flex-col justify-between shadow-sm hover:shadow-md transition">
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-purple-100 text-purple-700"><i class="fa-solid fa-music mr-1"></i> 4. Визуал Аяз</span>
+                                <span class="text-[11px] text-slate-500 font-semibold">Уянгын гүн тайвшрал</span>
+                            </div>
+                            <h4 class="font-bold text-base text-slate-900">4. Гэгээн алсад одох юмсан ая</h4>
+                            <p class="text-xs text-slate-600 mt-1 mb-3 leading-relaxed">
+                                <strong>Тайлбар:</strong> Сэтгэлийн гүнд хүрэх уянгалаг морин хуур, лимбэний эгшгээр ажлын ядаргаа, стрессийг мартуулах бүтээл.
+                            </p>
+                            <div class="relative rounded-xl overflow-hidden bg-slate-900 aspect-video mb-3 border border-slate-200 flex items-center justify-center">
+                                <canvas id="canvas-gegeen" class="w-full h-full object-cover"></canvas>
+                                <video id="video-gegeen" class="w-full h-full object-cover hidden" controls playsinline></video>
+                                <div id="overlay-gegeen" class="absolute inset-0 flex flex-col items-center justify-center bg-slate-900/40 text-white pointer-events-none">
+                                    <i class="fa-solid fa-circle-play text-4xl opacity-90 drop-shadow"></i>
+                                    <span class="text-xs font-semibold mt-1 drop-shadow">Гэгээн алсад одох юмсан</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="playMongolTrack('gegeen')" class="flex-1 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold transition flex items-center justify-center gap-1.5 shadow-sm">
+                                <i class="fa-solid fa-play"></i> Эхлүүлэх
+                            </button>
+                            <button onclick="stopAllAudio()" class="px-4 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-semibold transition flex items-center gap-1.5">
+                                <i class="fa-solid fa-stop"></i> Зогсоох
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. MP3 / WAV Player -->
+                <div class="mt-6 p-5 rounded-2xl border-2 border-indigo-200 bg-indigo-50/40 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm">
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-2">
+                            <span class="px-3 py-1 rounded-full text-[11px] font-bold bg-indigo-600 text-white shadow-sm"><i class="fa-solid fa-music mr-1"></i> 5. MP3 / WAV Тоглуулагч</span>
+                            <span class="text-xs font-semibold text-indigo-900">Хувийн хөгжмийн сан</span>
+                        </div>
+                        <h4 class="font-bold text-base text-slate-900">Өөрийн дуртай Монгол MP3 аяз оруулах хэсэг</h4>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            Та компьютер эсвэл утсан дээрээ байгаа өөрийн дуртай морин хуур, уртын дуу, лимбэний <strong>.mp3</strong> эсвэл <strong>.wav</strong> файлаа сонгоод апп дотроо шууд тоглуулаарай.
+                        </p>
+                    </div>
+                    <div class="w-full md:w-auto shrink-0 bg-white p-3 rounded-2xl border border-indigo-200 shadow-sm flex flex-col items-center gap-2">
+                        <label class="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold cursor-pointer transition flex items-center gap-2 shadow-sm">
+                            <i class="fa-solid fa-folder-open"></i> Файл сонгох
+                            <input type="file" id="customAudioInput" accept=".mp3,.wav,audio/*" onchange="loadCustomAudio(event)" class="hidden">
+                        </label>
+                        <span id="customAudioFileName" class="text-[11px] text-slate-500 font-medium">Файл сонгогдоогүй байна</span>
+                        <audio id="customAudioPlayer" controls class="w-full h-8 mt-1 hidden"></audio>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: BREATHING EXERCISE -->
+        <section id="tab-breathe" class="tab-content hidden">
+            <div class="glass-card rounded-2xl p-8 text-center max-w-2xl mx-auto">
+                <h2 class="text-lg font-bold text-slate-800">4-4-4 Хэмнэлт Амьсгалын Дасгал (Уртын дууны уужим амьсгаа)</h2>
+                <p class="text-xs text-slate-500 mt-1 mb-8">4 секунд уужим амьсгал авч, 4 секунд түгжээд, 4 секунд аажуухан гаргаснаар зүрхний цохилт тогтворжино.</p>
+                <div class="relative w-56 h-56 mx-auto flex items-center justify-center my-6">
+                    <div id="breatheCircle" class="breathe-circle w-36 h-36 rounded-full bg-gradient-to-tr from-indigo-500 to-sky-400 opacity-80 flex items-center justify-center shadow-2xl shadow-indigo-300"></div>
+                    <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                        <span id="breatheText" class="text-white font-bold text-base drop-shadow">Бэлэн үү?</span>
+                        <span id="breatheTimer" class="text-white text-4xl font-extrabold mt-1 drop-shadow-md">4 с</span>
+                    </div>
+                </div>
+                <div class="flex justify-center gap-3 mt-8">
+                    <button id="startBreatheBtn" onclick="toggleBreathing()" class="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold transition shadow-md">
+                        <i class="fa-solid fa-play mr-1"></i> Дасгал эхлүүлэх
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 3: VIRTUAL MONGOLIAN PENTATONIC YATGA -->
+        <section id="tab-kalimba" class="tab-content hidden">
+            <div class="glass-card rounded-2xl p-6 max-w-3xl mx-auto text-center">
+                <h2 class="text-lg font-bold text-slate-800">Виртуал Монгол Таван Эгшигт Ятга (Пентатоник хөг)</h2>
+                <p class="text-xs text-slate-500 mt-1 mb-6">Монгол ардын хөгжмийн <strong>До - Ре - Ми - Соль - Ля</strong> таван эгшгийн хөгтэй тул дурын товчоор дарж аялгуу үүсгээрэй.</p>
+                <div class="flex justify-center items-start gap-2 sm:gap-4 h-64 bg-amber-950/10 p-6 rounded-2xl border border-amber-900/20">
+                    <div onclick="playYatgaNote(261.63, 0)" id="tine-0" class="kalimba-tine w-10 sm:w-14 h-40 bg-gradient-to-b from-amber-50 to-amber-200 border border-amber-400 rounded-b-full shadow-md flex flex-col justify-end pb-3 items-center text-xs font-bold text-amber-900"><span>До</span><span class="text-[10px] text-amber-700">[1]</span></div>
+                    <div onclick="playYatgaNote(293.66, 1)" id="tine-1" class="kalimba-tine w-10 sm:w-14 h-44 bg-gradient-to-b from-amber-50 to-amber-200 border border-amber-400 rounded-b-full shadow-md flex flex-col justify-end pb-3 items-center text-xs font-bold text-amber-900"><span>Ре</span><span class="text-[10px] text-amber-700">[2]</span></div>
+                    <div onclick="playYatgaNote(329.63, 2)" id="tine-2" class="kalimba-tine w-10 sm:w-14 h-48 bg-gradient-to-b from-amber-50 to-amber-200 border border-amber-400 rounded-b-full shadow-md flex flex-col justify-end pb-3 items-center text-xs font-bold text-amber-900"><span>Ми</span><span class="text-[10px] text-amber-700">[3]</span></div>
+                    <div onclick="playYatgaNote(392.00, 3)" id="tine-3" class="kalimba-tine w-10 sm:w-14 h-52 bg-gradient-to-b from-amber-50 to-amber-200 border border-amber-400 rounded-b-full shadow-md flex flex-col justify-end pb-3 items-center text-xs font-bold text-amber-900"><span>Соль</span><span class="text-[10px] text-amber-700">[4]</span></div>
+                    <div onclick="playYatgaNote(440.00, 4)" id="tine-4" class="kalimba-tine w-10 sm:w-14 h-52 bg-gradient-to-b from-amber-50 to-amber-200 border border-amber-400 rounded-b-full shadow-md flex flex-col justify-end pb-3 items-center text-xs font-bold text-amber-900"><span>Ля</span><span class="text-[10px] text-amber-700">[5]</span></div>
+                    <div onclick="playYatgaNote(523.25, 5)" id="tine-5" class="kalimba-tine w-10 sm:w-14 h-48 bg-gradient-to-b from-amber-50 to-amber-200 border border-amber-400 rounded-b-full shadow-md flex flex-col justify-end pb-3 items-center text-xs font-bold text-amber-900"><span>До'</span><span class="text-[10px] text-amber-700">[6]</span></div>
+                    <div onclick="playYatgaNote(587.33, 6)" id="tine-6" class="kalimba-tine w-10 sm:w-14 h-44 bg-gradient-to-b from-amber-50 to-amber-200 border border-amber-400 rounded-b-full shadow-md flex flex-col justify-end pb-3 items-center text-xs font-bold text-amber-900"><span>Ре'</span><span class="text-[10px] text-amber-700">[7]</span></div>
+                    <div onclick="playYatgaNote(659.25, 7)" id="tine-7" class="kalimba-tine w-10 sm:w-14 h-40 bg-gradient-to-b from-amber-50 to-amber-200 border border-amber-400 rounded-b-full shadow-md flex flex-col justify-end pb-3 items-center text-xs font-bold text-amber-900"><span>Ми'</span><span class="text-[10px] text-amber-700">[8]</span></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 4: AI COUNSELOR -->
+        <section id="tab-ai" class="tab-content hidden">
+            <div class="glass-card rounded-2xl p-6 max-w-3xl mx-auto">
+                <h2 class="text-lg font-bold text-slate-800 mb-1">Багшийн Сэтгэл Зүйн Ухаалаг Зөвлөх</h2>
+                <p class="text-xs text-slate-500 mb-4">Танд тулгарч буй асуудлыг сонгоход сэтгэл зүйн зөвлөгөө өгнө.</p>
+                <div class="flex flex-wrap gap-2 mb-4">
+                    <button onclick="askAdvisor('burnout')" class="text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-3 py-1.5 rounded-lg border border-indigo-200 transition">Ажлаас халшраад байна</button>
+                    <button onclick="askAdvisor('noise')" class="text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-3 py-1.5 rounded-lg border border-indigo-200 transition">Ангийн шуугианаас толгой өвдлөө</button>
+                    <button onclick="askAdvisor('papers')" class="text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-3 py-1.5 rounded-lg border border-indigo-200 transition">Бичиг цаасны ажил их байна</button>
+                    <button onclick="askAdvisor('sleep')" class="text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-3 py-1.5 rounded-lg border border-indigo-200 transition">Орой нойр хүрэхгүй байна</button>
+                </div>
+                <div id="aiResponseBox" class="p-4 rounded-xl bg-white border border-slate-200 text-xs leading-relaxed text-slate-700 min-h-[110px]">
+                    Сайн байна уу, багш аа? Дээрх сэдвүүдээс сонгож зөвлөгөө аваарай.
+                </div>
+                
+                <div class="mt-5 p-4 rounded-2xl border-2 border-yellow-200 bg-yellow-50/60">
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="text-2xl">🐤</span>
+                        <p class="text-sm font-bold text-yellow-800">Танд өөр асуух зүйл байна уу?</p>
+                    </div>
+                    <div id="freeAiChat" class="space-y-2 mb-3 max-h-48 overflow-y-auto"></div>
+                    <div class="flex gap-2">
+                        <input id="freeAiInput" type="text" placeholder="Асуултаа бичнэ үү..." class="flex-1 text-sm px-3 py-2 rounded-xl border border-yellow-300 bg-white focus:outline-none focus:border-yellow-500">
+                        <button onclick="sendFreeAiQuestion()" class="px-4 py-2 rounded-xl bg-yellow-400 hover:bg-yellow-500 text-yellow-900 text-sm font-bold transition shadow-sm">Илгээх</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 5: SURVEY -->
+        <section id="tab-survey" class="tab-content hidden">
+            <div class="glass-card rounded-2xl p-4 sm:p-6 max-w-4xl mx-auto">
+                <div id="gformPublicBox" class="hidden mb-5 p-4 rounded-2xl border-2 border-emerald-300 bg-emerald-50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div class="text-sm text-emerald-900"><strong>📝 Нэгдсэн судалгаа:</strong> Хариултыг бүх багшийн хамт тооцохын тулд Google Form-оор бөглөнө үү.</div>
+                    <a id="gformPublicLink" href="#" target="_blank" rel="noopener noreferrer" class="text-center px-5 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold transition">Google Form бөглөх ↗</a>
+                </div>
+                
+                <div class="flex flex-col sm:flex-row sm:flex-wrap justify-between items-start sm:items-center border-b border-slate-200 pb-4 mb-5 gap-3">
+                    <div>
+                        <h2 class="text-base sm:text-lg font-bold text-slate-800">Багшийн Ажлын Байрны Стрессийг Үнэлэх Сорил</h2>
+                        <p class="text-xs text-slate-500">Хариулт нууцлалтай. Нэгдсэн тооцоонд орохын тулд доорх Google Form-оор бас бөглөнө үү.</p>
+                    </div>
+                    <div class="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2 w-full sm:w-auto">
+                        <input type="text" id="teacherCodeInput" placeholder="Багшийн код / Нэр" class="text-sm border border-slate-300 rounded-lg px-3 py-2 bg-white w-full sm:w-auto">
+                        <select id="surveyPhase" class="text-sm border border-slate-300 rounded-lg px-3 py-2 bg-white font-medium w-full sm:w-auto">
+                            <option value="pre">Гарааны үнэлгээ (Pre-test)</option>
+                            <option value="post">Төгсгөлийн үнэлгээ (Post-test)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <form id="teacherSurveyForm" onsubmit="submitTeacherSurvey(event)" class="space-y-3">
+                    <div id="surveyQuestionsContainer" class="space-y-2.5"></div>
+                    <div class="pt-4 flex justify-stretch sm:justify-end border-t border-slate-200">
+                        <button type="submit" class="w-full sm:w-auto px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold transition shadow-md">
+                            <i class="fa-solid fa-paper-plane mr-1"></i> Хариулт илгээх & Хувийн дүн харах
+                        </button>
+                    </div>
+                </form>
+                <div id="personalResultBox" class="hidden mt-6 p-5 rounded-2xl bg-indigo-50 border border-indigo-200">
+                    <p class="text-xs text-slate-600 mb-2">Энэ хариулт зөвхөн таны төхөөрөмжид хадгалагдлаа. Нэгдсэн тооцоонд орохын тулд дээрх Google Form-ыг бас бөглөнө үү.</p>
+                    <h3 class="font-bold text-sm text-indigo-950 mb-1" id="personalScoreTitle"></h3>
+                    <p class="text-xs text-indigo-800 leading-relaxed" id="personalScoreDesc"></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 6: ADMIN MANAGEMENT -->
+        <section id="tab-admin" class="tab-content hidden space-y-6">
+            <!-- GOOGLE FORM SECTION -->
+            <div class="glass-card rounded-2xl p-4 sm:p-6 border-2 border-emerald-300/70 space-y-5">
+                <div class="flex justify-between items-center gap-3">
+                    <div>
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">📝 УДИРДЛАГА</span>
+                        <h2 class="text-lg sm:text-xl font-bold text-slate-900 mt-1">Google Form судалгааны холбоос</h2>
+                        <p class="text-xs text-slate-500">Google Form-ийн хариулагчийн линкийг хадгалж, багш нарт илгээх линк, QR код болгон ашиглана.</p>
+                    </div>
+                    <button onclick="clearGoogleForm()" class="px-3.5 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-semibold transition">Устгах</button>
+                </div>
+                
+                <div class="p-4 rounded-xl bg-white border border-slate-200 space-y-3">
+                    <label for="gformUrlInput" class="text-xs font-semibold text-slate-700 block">Google Form линк (Хариулагчийн линк)</label>
+                    <div class="flex flex-col sm:flex-row gap-2">
+                        <input id="gformUrlInput" type="url" inputmode="url" placeholder="https://docs.google.com/forms/d/e/.../viewform" class="flex-1 text-sm px-3 py-2 rounded-xl border border-slate-300 bg-white focus:outline-none focus:border-emerald-500">
+                        <button onclick="saveGoogleForm()" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold transition">Хадгалах</button>
+                    </div>
+                    <p id="gformMsg" class="text-xs hidden"></p>
+                </div>
+                
+                <div id="gformActions" class="hidden space-y-4 pt-3 border-t border-slate-200">
+                    <div class="flex flex-wrap gap-2">
+                        <a id="gformOpenLink" href="#" target="_blank" rel="noopener noreferrer" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition flex items-center gap-1.5"><i class="fa-solid fa-arrow-up-right-from-square"></i> Шинэ цонхоор нээх</a>
+                        <button onclick="copyGoogleForm()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold transition flex items-center gap-1.5"><i class="fa-solid fa-link"></i> Линк хуулах</button>
+                        <button onclick="showGoogleFormQR()" class="px-4 py-2 rounded-xl bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-bold transition flex items-center gap-1.5"><i class="fa-solid fa-qrcode"></i> QR код үзэх</button>
+                    </div>
+                    <div id="gformQrBox" class="hidden text-center p-4 rounded-2xl bg-white border border-slate-100 shadow-inner">
+                        <div id="gformQrCanvas" class="p-3 bg-white border border-slate-200 rounded-2xl shadow-sm inline-block"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MP4 VIDEO UPLOAD SECTION (NEW) -->
+            <div class="glass-card rounded-2xl p-4 sm:p-6 border-2 border-indigo-300/70 space-y-5">
+                <div>
+                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-800 border border-indigo-300">🎬 ВИДЕО УДИРДЛАГА</span>
+                    <h2 class="text-lg sm:text-xl font-bold text-slate-900 mt-1">Монгол Аялгууны MP4 Видео Оруулах</h2>
+                    <p class="text-xs text-slate-500">Доорх 4 үндсэн аялгуу тус бүрд зориулж компьютер дээрх <strong>.mp4</strong> видео файлыг сонгож байрлуулна уу.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- 1. Yatga Video -->
+                    <div class="p-4 rounded-xl bg-white border border-slate-200 space-y-2">
+                        <div class="font-bold text-sm text-slate-800">1. Ятгын вариаци (.mp4)</div>
+                        <input type="file" id="videoInput-yatga" accept="video/mp4" onchange="uploadCustomVideo('yatga', event)" class="text-xs text-slate-500 w-full file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                        <span id="fileName-yatga" class="text-[11px] text-slate-400 block">Видео сонгогдоогүй байна</span>
+                    </div>
+                    <!-- 2. Tarhi Video -->
+                    <div class="p-4 rounded-xl bg-white border border-slate-200 space-y-2">
+                        <div class="font-bold text-sm text-slate-800">2. Тархи амраах ая (.mp4)</div>
+                        <input type="file" id="videoInput-tarhi" accept="video/mp4" onchange="uploadCustomVideo('tarhi', event)" class="text-xs text-slate-500 w-full file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                        <span id="fileName-tarhi" class="text-[11px] text-slate-400 block">Видео сонгогдоогүй байна</span>
+                    </div>
+                    <!-- 3. Taivshruulah Video -->
+                    <div class="p-4 rounded-xl bg-white border border-slate-200 space-y-2">
+                        <div class="font-bold text-sm text-slate-800">3. Тайвшруулах ая (.mp4)</div>
+                        <input type="file" id="videoInput-taivshruulah" accept="video/mp4" onchange="uploadCustomVideo('taivshruulah', event)" class="text-xs text-slate-500 w-full file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                        <span id="fileName-taivshruulah" class="text-[11px] text-slate-400 block">Видео сонгогдоогүй байна</span>
+                    </div>
+                    <!-- 4. Gegeen Video -->
+                    <div class="p-4 rounded-xl bg-white border border-slate-200 space-y-2">
+                        <div class="font-bold text-sm text-slate-800">4. Гэгээн алсад одох юмсан (.mp4)</div>
+                        <input type="file" id="videoInput-gegeen" accept="video/mp4" onchange="uploadCustomVideo('gegeen', event)" class="text-xs text-slate-500 w-full file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                        <span id="fileName-gegeen" class="text-[11px] text-slate-400 block">Видео сонгогдоогүй байна</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- PRE-POST CHART SECTION -->
+            <div class="glass-card rounded-2xl p-4 sm:p-6 border-2 border-indigo-200 space-y-5">
+                <div>
+                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-800 border border-indigo-300">📈 ГРАФИК</span>
+                    <h2 class="text-lg sm:text-xl font-bold text-slate-900 mt-1">Судалгааны өмнөх ба дараах хариулт</h2>
+                    <p class="text-xs text-slate-500">Асуулт бүрийн дундаж оноог Гарааны (Pre-test) болон Төгсгөлийн (Post-test) үнэлгээгээр харьцуулна.</p>
+                </div>
+                
+                <div id="ppSummary" class="grid grid-cols-2 lg:grid-cols-4 gap-3"></div>
+                
+                <div class="flex flex-wrap items-center gap-4 text-xs text-slate-600">
+                    <span class="flex items-center gap-1.5"><span class="inline-block w-3 h-3 rounded-sm" style="background:#6366f1"></span> Өмнөх (Pre-test)</span>
+                    <span class="flex items-center gap-1.5"><span class="inline-block w-3 h-3 rounded-sm" style="background:#10b981"></span> Дараах (Post-test)</span>
+                </div>
+                
+                <div class="overflow-x-auto rounded-xl border border-slate-200 bg-white p-2">
+                    <div id="ppChart" style="min-width:560px;"></div>
+                </div>
+                <p id="ppEmpty" class="hidden text-xs text-slate-500 text-center p-5">Харьцуулах хариулт хараахан байхгүй байна.</p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ADMIN LOGIN MODAL -->
+    <div id="adminModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-100">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-base text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-user-shield text-indigo-600"></i> Удирдлагын хэсэгт нэвтрэх
+                </h3>
+                <button onclick="closeAdminModal()" class="text-slate-400"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <p class="text-xs text-slate-500 mb-4">Нууц үгээ оруулна уу (Үндсэн нууц үг: <strong class="text-indigo-600">2027</strong>):</p>
+            <form onsubmit="verifyAdmin(event)">
+                <input type="password" id="adminPinInput" placeholder="Нууц үг" class="w-full px-3.5 py-2.5 text-sm font-bold tracking-widest text-indigo-700 border border-slate-300 rounded-xl mb-3 focus:outline-none focus:border-indigo-600">
+                <p id="adminErrorMsg" class="text-xs text-rose-600 mb-3 hidden">Нууц үг буруу байна!</p>
+                <div class="flex justify-end gap-2">
+                    <button type="button" onclick="closeAdminModal()" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100">Болих</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl text-xs font-semibold bg-indigo-600 text-white">Нэвтрэх</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- SHARE MODAL -->
+    <div id="shareModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 text-center">
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="font-bold text-base text-slate-800"><i class="fa-solid fa-qrcode text-indigo-600 mr-1"></i> QR код</h3>
+                <button onclick="closeShareModal()" class="text-slate-400"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="flex justify-center mb-4">
+                <div id="qrcodeContainer" class="p-3 bg-white border border-slate-200 rounded-2xl shadow-sm inline-block"></div>
+            </div>
+            <div class="flex gap-2 mb-3">
+                <input type="text" id="shareUrlInput" readonly class="flex-1 px-3 py-2 text-xs border border-slate-300 rounded-xl bg-slate-50 text-slate-600 focus:outline-none">
+                <button onclick="copyShareLink()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs rounded-xl font-semibold transition shrink-0">Хуулах</button>
+            </div>
+            <button onclick="closeShareModal()" class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition">Хаах</button>
+        </div>
+    </div>
+
+    <script>
+        const QUESTIONS = [
+            { code: 'А1', text: 'Хичээл тарсны дараа бие махбод, сэтгэл зүйн хувьд хэт ядарч сульддаг' },
+            { code: 'А2', text: 'Сургуулийн орчны дуу чимээ, шуугианаас болж толгой өвдөх шинж илэрдэг' },
+            { code: 'А3', text: 'Дэвтэр засах, бичиг цаасны ажил хийх үед анхаарал төвлөрөхөд бэрхшээлтэй байдаг' },
+            { code: 'А4', text: 'Ажлын ачаалал, сургууль дээрх бухимдлаа гэртээ хариад ч мартдаггүй' },
+            { code: 'А5', text: 'Орой унтахад нойр хулжих, өглөө сэрэхэд хангалттай амарч чадаагүй санагддаг' },
+            { code: 'А6', text: 'Харилцаанд тэвчээр алдагдах, жижиг зүйлд амархан бухимдах хандлагатай' },
+            { code: 'А7', text: 'Хичээлийн завсарлагаанаар сэтгэл санаагаа тайвшруулж амрах орчин дутагддаг' },
+            { code: 'А8', text: 'Стрессээс үүдэн зүрх дэлсэх, хүзүүний булчин чангарах шинж илэрдэг' },
+            { code: 'А9', text: 'Ажилдаа дур сонирхол буурах, ажлаас халшрах мэдрэмж төрдөг' },
+            { code: 'А10', text: 'Өдөр тутмын стрессээ тухай бүрд нь тайлах энгийн арга барил дутагддаг' }
+        ];
+
+        const TRACK_KEYS = ['yatga', 'tarhi', 'taivshruulah', 'gegeen'];
+        const SURVEY_DATA_KEY = 'melodic_break_survey_v3';
+        const GFORM_URL_KEY = 'melodic_break_gform_v1';
+
+        let surveyResponses = [];
+        let isAdmin = false;
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(tabId).classList.remove('hidden');
+            
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                if(btn.id !== 'btn-tab-control') {
+                    btn.className = 'tab-btn bg-white/70 hover:bg-white px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 transition flex items-center gap-2';
+                }
+            });
+            
+            const activeBtn = document.getElementById('btn-' + tabId);
+            if (activeBtn && tabId !== 'tab-admin') {
+                activeBtn.className = 'tab-btn tab-active px-4 py-2 rounded-xl text-xs font-semibold transition flex items-center gap-2';
+            }
+        }
+
+        function selectMood(level, label, recommendedTrack) {
+            document.getElementById('moodRecommendation').classList.remove('hidden');
+            document.getElementById('moodRecText').innerHTML = `Таны төлөв: <strong>${label}</strong>. Тохирох аялгууг тоглуулж байна.`;
+            playMongolTrack(recommendedTrack);
+        }
+
+        function loadSurveyData() {
+            const saved = localStorage.getItem(SURVEY_DATA_KEY);
+            surveyResponses = saved ? JSON.parse(saved) : [];
+            document.getElementById('headerCount').textContent = surveyResponses.length;
+        }
+
+        function saveSurveyData() {
+            localStorage.setItem(SURVEY_DATA_KEY, JSON.stringify(surveyResponses));
+            document.getElementById('headerCount').textContent = surveyResponses.length;
+        }
+
+        function renderSurveyQuestions() {
+            const container = document.getElementById('surveyQuestionsContainer');
+            if (!container) return;
+            const labels = ['Огт биш', 'Ховор', 'Заримдаа', 'Байнга', 'Үргэлж'];
+            
+            container.innerHTML = QUESTIONS.map((q, idx) => `
+                <div class="p-4 rounded-xl bg-white border border-slate-200 space-y-3">
+                    <div class="text-sm font-medium text-slate-800 leading-snug"><span class="font-bold text-indigo-600 mr-1">${q.code}.</span> ${q.text}</div>
+                    <div class="grid grid-cols-5 gap-2">
+                        ${[1, 2, 3, 4, 5].map(val => `
+                            <label class="flex flex-col items-center gap-1 cursor-pointer group">
+                                <input type="radio" name="q_${idx}" value="${val}" ${val === 3 ? 'checked' : ''} class="sr-only peer">
+                                <div class="w-full rounded-xl border-2 border-slate-200 bg-slate-50 text-center text-lg font-bold text-slate-500 transition-all peer-checked:bg-indigo-600 peer-checked:border-indigo-600 peer-checked:text-white hover:border-indigo-400 hover:bg-indigo-50 select-none" style="min-height:52px;line-height:52px;">${val}</div>
+                                <span class="text-[9px] text-slate-400 font-medium text-center leading-tight px-0.5">${labels[val-1]}</span>
+                            </label>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function submitTeacherSurvey(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const scores = [];
+            for (let i = 0; i < QUESTIONS.length; i++) {
+                scores.push(parseInt(formData.get(`q_${i}`), 10));
+            }
+            const phase = document.getElementById('surveyPhase').value;
+            const teacherCode = (document.getElementById('teacherCodeInput')?.value || '').trim();
+            
+            surveyResponses.push({ phase, scores, teacherCode, timestamp: new Date().toISOString() });
+            saveSurveyData();
+
+            const total = scores.reduce((a, b) => a + b, 0);
+            const box = document.getElementById('personalResultBox');
+            box.classList.remove('hidden');
+            document.getElementById('personalScoreTitle').textContent = `Таны нийлбэр оноо: ${total} / 50`;
+            document.getElementById('personalScoreDesc').textContent = total <= 20 ? 'Стресс бага байна.' : total <= 34 ? 'Дунд зэргийн стресс байна.' : 'Өндөр стресстэй байна.';
+        }
+
+        function loadGoogleForm() {
+            const url = localStorage.getItem(GFORM_URL_KEY);
+            if (!url) return;
+            document.getElementById('gformUrlInput').value = url;
+            document.getElementById('gformActions').classList.remove('hidden');
+            document.getElementById('gformOpenLink').href = url;
+            document.getElementById('gformPublicBox').classList.remove('hidden');
+            document.getElementById('gformPublicLink').href = url;
+        }
+
+        function saveGoogleForm() {
+            let url = document.getElementById('gformUrlInput').value.trim();
+            const msgEl = document.getElementById('gformMsg');
+            if (!url) { alert('Линкийг оруулна үү.'); return; }
+            localStorage.setItem(GFORM_URL_KEY, url);
+            loadGoogleForm();
+            msgEl.textContent = 'Амжилттай хадгалагдлаа ✓';
+            msgEl.classList.remove('hidden');
+        }
+        
+        function clearGoogleForm() {
+            if(!confirm('Хадгалсан линкийг устгах уу?')) return;
+            localStorage.removeItem(GFORM_URL_KEY);
+            document.getElementById('gformUrlInput').value = '';
+            document.getElementById('gformActions').classList.add('hidden');
+            document.getElementById('gformPublicBox').classList.add('hidden');
+        }
+
+        function copyGoogleForm() {
+            const url = localStorage.getItem(GFORM_URL_KEY);
+            if (!url) return;
+            navigator.clipboard.writeText(url).then(() => alert('Линк хуулагдлаа.'));
+        }
+        
+        function showGoogleFormQR() {
+            const url = localStorage.getItem(GFORM_URL_KEY);
+            if (!url) return;
+            const box = document.getElementById('gformQrBox');
+            const canvas = document.getElementById('gformQrCanvas');
+            canvas.innerHTML = '';
+            new QRCode(canvas, { text: url, width: 140, height: 140 });
+            box.classList.remove('hidden');
+        }
+
+        // Custom MP4 Video Upload Management
+        function uploadCustomVideo(trackKey, event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const videoUrl = URL.createObjectURL(file);
+            document.getElementById('fileName-' + trackKey).textContent = file.name;
+            
+            // Link directly to the main video player component
+            const videoEl = document.getElementById('video-' + trackKey);
+            const canvasEl = document.getElementById('canvas-' + trackKey);
+            
+            if (videoEl) {
+                videoEl.src = videoUrl;
+                videoEl.classList.remove('hidden');
+                if (canvasEl) canvasEl.classList.add('hidden');
+            }
+        }
+
+        function mean(arr) { return arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0; }
+        
+        function renderPrePostChart() {
+            const chartEl = document.getElementById('ppChart');
+            const preData = surveyResponses.filter(r => r.phase === 'pre');
+            const postData = surveyResponses.filter(r => r.phase === 'post');
+            
+            const card = (label, value, color) => `<div class="p-3 rounded-xl bg-white border border-slate-200"><div class="text-[11px] text-slate-500">${label}</div><div class="text-xl font-extrabold" style="color:${color}">${value}</div></div>`;
+            document.getElementById('ppSummary').innerHTML = card('Pre-test (N)', preData.length, '#6366f1') + card('Post-test (N)', postData.length, '#10b981');
+            
+            if (!preData.length && !postData.length) { 
+                chartEl.innerHTML = ''; 
+                document.getElementById('ppEmpty').classList.remove('hidden'); 
+                return; 
+            }
+            document.getElementById('ppEmpty').classList.add('hidden');
+
+            const W = 600, H = 280, L = 30, R = 10, T = 15, B = 40;
+            const plotW = W - L - R, plotH = H - T - B;
+            const n = QUESTIONS.length, groupW = plotW / n, barW = Math.min(22, groupW / 2 - 5);
+            const y = v => T + plotH - (v / 5) * plotH;
+            
+            let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" class="font-semibold text-slate-700">`;
+            for (let g = 0; g <= 5; g++) {
+                svg += `<line x1="${L}" x2="${W - R}" y1="${y(g)}" y2="${y(g)}" stroke="#e2e8f0" stroke-width="1"/>`;
+                svg += `<text x="${L - 6}" y="${y(g) + 4}" text-anchor="end" font-size="11" fill="#64748b">${g}</text>`;
+            }
+            
+            QUESTIONS.forEach((q, i) => {
+                const cx = L + groupW * i + groupW / 2;
+                const preAvg = mean(preData.map(r => r.scores[i]));
+                const postAvg = mean(postData.map(r => r.scores[i]));
+
+                if (preData.length > 0) {
+                    svg += `<rect x="${cx - barW - 1}" y="${y(preAvg)}" width="${barW}" height="${plotH - (y(preAvg) - T)}" rx="3" fill="#6366f1"/>`;
+                }
+                if (postData.length > 0) {
+                    svg += `<rect x="${cx + 1}" y="${y(postAvg)}" width="${barW}" height="${plotH - (y(postAvg) - T)}" rx="3" fill="#10b981"/>`;
+                }
+                svg += `<text x="${cx}" y="${H - B + 18}" text-anchor="middle" font-size="11" font-weight="600" fill="#475569">${q.code}</text>`;
+            });
+            svg += `</svg>`;
+            chartEl.innerHTML = svg;
+        }
+
+        // Web Audio Synthesizer
+        let audioCtx = null, masterGain = null, synthInterval = null;
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                masterGain = audioCtx.createGain();
+                masterGain.gain.value = 0.5;
+                masterGain.connect(audioCtx.destination);
+            }
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        const PENTATONIC_FREQS = {
+            yatga: [261.63, 293.66, 329.63, 392.00, 440.00, 523.25],
+            tarhi: [196.00, 220.00, 261.63, 293.66, 329.63],
+            taivshruulah: [130.81, 146.83, 164.81, 196.00, 220.00],
+            gegeen: [220.00, 261.63, 293.66, 392.00, 440.00, 587.33]
+        };
+
+        function playSynthMelody(type) {
+            initAudio();
+            if (synthInterval) clearInterval(synthInterval);
+            const notes = PENTATONIC_FREQS[type] || PENTATONIC_FREQS.yatga;
+            synthInterval = setInterval(() => {
+                const freq = notes[Math.floor(Math.random() * notes.length)];
+                const now = audioCtx.currentTime;
+                const osc = audioCtx.createOscillator();
+                const noteGain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, now);
+                noteGain.gain.setValueAtTime(0.2, now);
+                noteGain.gain.exponentialRampToValueAtTime(0.0001, now + 2.0);
+                osc.connect(noteGain);
+                noteGain.connect(masterGain);
+                osc.start(now);
+                osc.stop(now + 2.0);
+            }, 600);
+        }
+
+        function stopSynthMelody() {
+            if (synthInterval) { clearInterval(synthInterval); synthInterval = null; }
+        }
+
+        let animFrameId = null;
+        function startCanvasAnimation(trackKey) {
+            if (animFrameId) cancelAnimationFrame(animFrameId);
+            const canvas = document.getElementById('canvas-' + trackKey);
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            canvas.width = 480; canvas.height = 270;
+            let t = 0;
+            function render() {
+                t += 0.04;
+                ctx.fillStyle = '#0f172a';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.beginPath();
+                ctx.strokeStyle = '#818cf8';
+                ctx.lineWidth = 3;
+                for (let x = 0; x <= canvas.width; x += 8) {
+                    const y = 135 + Math.sin(x * 0.03 + t) * 25;
+                    if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+                animFrameId = requestAnimationFrame(render);
+            }
+            render();
+        }
+
+        function stopAllAudio() {
+            stopSynthMelody();
+            if (animFrameId) { cancelAnimationFrame(animFrameId); animFrameId = null; }
+            TRACK_KEYS.forEach(t => {
+                const vid = document.getElementById('video-' + t);
+                if (vid && !vid.src) { vid.pause(); vid.classList.add('hidden'); }
+            });
+        }
+
+        function playMongolTrack(type) {
+            stopAllAudio();
+            const vid = document.getElementById('video-' + type);
+            if (vid && vid.src) {
+                vid.classList.remove('hidden');
+                document.getElementById('canvas-' + type).classList.add('hidden');
+                vid.play();
+            } else {
+                startCanvasAnimation(type);
+            }
+            playSynthMelody(type);
+        }
+
+        function updateVolume(val) {
+            if (masterGain) masterGain.gain.value = val / 100;
+        }
+
+        function playYatgaNote(freq, tineIndex) {
+            initAudio();
+            const now = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, now);
+            g.gain.setValueAtTime(0.3, now);
+            g.gain.exponentialRampToValueAtTime(0.001, now + 1.8);
+            osc.connect(g);
+            g.connect(masterGain);
+            osc.start(now);
+            osc.stop(now + 1.8);
+
+            const el = document.getElementById('tine-' + tineIndex);
+            if (el) {
+                el.classList.add('kalimba-active');
+                setTimeout(() => el.classList.remove('kalimba-active'), 180);
+            }
+        }
+
+        function loadCustomAudio(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            stopAllAudio();
+            const player = document.getElementById('customAudioPlayer');
+            document.getElementById('customAudioFileName').textContent = file.name;
+            player.src = URL.createObjectURL(file);
+            player.classList.remove('hidden');
+            player.play();
+        }
+
+        let isBreathing = false, breatheTimerId = null;
+        function toggleBreathing() {
+            const btn = document.getElementById('startBreatheBtn');
+            const circle = document.getElementById('breatheCircle');
+            const text = document.getElementById('breatheText');
+            const timer = document.getElementById('breatheTimer');
+
+            if (isBreathing) {
+                clearInterval(breatheTimerId);
+                isBreathing = false;
+                circle.style.transform = 'scale(1)';
+                text.textContent = 'Бэлэн үү?';
+                timer.textContent = '4 с';
+                btn.innerHTML = '<i class="fa-solid fa-play mr-1"></i> Дасгал эхлүүлэх';
+                return;
+            }
+            isBreathing = true;
+            btn.innerHTML = '<i class="fa-solid fa-pause mr-1"></i> Зогсоох';
+            let phase = 0, sec = 4;
+            breatheTimerId = setInterval(() => {
+                if (sec === 4) {
+                    if (phase === 0) { text.textContent = '1. Уужим амьсгал авна уу...'; circle.style.transform = 'scale(1.45)'; }
+                    else if (phase === 1) { text.textContent = '2. Амьсгалаа түгжинэ үү...'; }
+                    else { text.textContent = '3. Аажуухан гаргана уу...'; circle.style.transform = 'scale(1)'; }
+                }
+                timer.textContent = sec + ' с';
+                sec--;
+                if (sec < 1) { sec = 4; phase = (phase + 1) % 3; }
+            }, 1000);
+        }
+
+        function askAdvisor(topic) {
+            const box = document.getElementById('aiResponseBox');
+            const responses = {
+                burnout: '<strong>Зөвлөгөө:</strong> Хичээл тарсны дараах 15 минутад тайвшруулах аялгуу сонсон амраарай.',
+                noise: '<strong>Зөвлөгөө:</strong> Сургуулийн дуу чимээний ядаргааг тайлахад чихэвчээр ятгын аялгуу сонсох тустай.',
+                papers: '<strong>Зөвлөгөө:</strong> Дэвтэр засах үед үггүй тайван аялгуу сонсох нь төвлөрүүлдэг.',
+                sleep: '<strong>Зөвлөгөө:</strong> Орой унтахын өмнө 4-4-4 дасгал хийж амраарай.'
+            };
+            box.innerHTML = responses[topic] || '';
+        }
+
+        function openAdminModal() {
+            if (isAdmin) {
+                isAdmin = false;
+                document.getElementById('controlTabIcon').className = 'fa-solid fa-gear';
+                document.getElementById('controlTabText').textContent = '⚙️ Удирдлагын хэсэг';
+                switchTab('tab-mood');
+                return;
+            }
+            document.getElementById('adminPinInput').value = '';
+            document.getElementById('adminErrorMsg').classList.add('hidden');
+            document.getElementById('adminModal').classList.remove('hidden');
+            document.getElementById('adminModal').classList.add('flex');
+        }
+
+        function closeAdminModal() {
+            document.getElementById('adminModal').classList.add('hidden');
+            document.getElementById('adminModal').classList.remove('flex');
+        }
+
+        function verifyAdmin(e) {
+            e.preventDefault();
+            const pin = document.getElementById('adminPinInput').value.trim();
+            if (pin === '2027' || pin.toLowerCase() === 'admin') {
+                isAdmin = true;
+                closeAdminModal();
+                document.getElementById('controlTabIcon').className = 'fa-solid fa-unlock-keyhole text-emerald-400';
+                document.getElementById('controlTabText').textContent = '⚙️ Удирдлага (Гарах)';
+                loadGoogleForm();
+                renderPrePostChart();
+                switchTab('tab-admin');
+            } else {
+                document.getElementById('adminErrorMsg').classList.remove('hidden');
+            }
+        }
+
+        function openShareModal() {
+            const modal = document.getElementById('shareModal');
+            const urlInput = document.getElementById('shareUrlInput');
+            const qrContainer = document.getElementById('qrcodeContainer');
+            const surveyUrl = window.location.href.split('#')[0] + '#survey';
+            
+            urlInput.value = surveyUrl;
+            qrContainer.innerHTML = '';
+            try {
+                new QRCode(qrContainer, { text: surveyUrl, width: 150, height: 150 });
+            } catch(e){}
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeShareModal() {
+            document.getElementById('shareModal').classList.add('hidden');
+            document.getElementById('shareModal').classList.remove('flex');
+        }
+
+        function copyShareLink() {
+            const input = document.getElementById('shareUrlInput');
+            navigator.clipboard.writeText(input.value).then(() => alert('Линк хуулагдлаа!'));
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderSurveyQuestions();
+            loadSurveyData();
+            loadGoogleForm();
+        });
+    </script>
+</body>
+</html>
